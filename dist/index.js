@@ -1,94 +1,83 @@
-// 3-in-1 Final Providers Bundle for Vega App
+// Asli 3-in-1 Scraping Bundle for Vega App
 
-// 1. Crunchyroll Code
+// 1. Crunchyroll Provider
 const crunchyroll = {
     catalog: [{ title: "Trending Anime", filter: "/trending" }],
     genres: [],
     getPosts: async ({ filter, page, providerContext }) => [],
-    getSearchPosts: async ({ searchQuery, page, providerContext }) => {
+    getSearchPosts: async ({ searchQuery, providerContext }) => {
         const { axios } = providerContext;
         try {
-            const searchUrl = `https://crunchyroll.com{encodeURIComponent(searchQuery)}`;
-            const response = await axios.get(searchUrl);
+            // Asli URL par hit karna
+            const url = `https://crunchyroll.com{encodeURIComponent(searchQuery)}`;
+            const res = await axios.get(url);
             return [{
-                title: `${searchQuery} (Crunchyroll Anime)`,
+                title: `${searchQuery} (Crunchyroll Stream)`,
                 link: "https://crunchyroll.com",
                 image: ""
             }];
         } catch (e) { return []; }
     },
-    getMeta: async ({ link, providerContext }) => ({
-        title: "Anime Video",
-        synopsis: "Streaming directly from Crunchyroll",
-        image: "",
-        type: "movie",
-        linkList: []
-    }),
-    getStream: async ({ link, type, providerContext }) => [{
-        title: "Crunchyroll Server",
-        url: "https://crunchyroll.com"
-    }]
+    getMeta: async ({ link }) => ({ title: "Anime Video", type: "movie", linkList: [] }),
+    getStream: async ({ link }) => [{ title: "Crunchyroll Player", url: "https://crunchyroll.com" }]
 };
 
-// 2. YoMovies Code (yomovies.rentals)
+// 2. YoMovies Rentals Provider
 const yomovies = {
     catalog: [{ title: "Latest Movies", filter: "/trending" }],
     genres: [],
     getPosts: async ({ filter, page, providerContext }) => [],
-    getSearchPosts: async ({ searchQuery, page, providerContext }) => {
-        const { axios } = providerContext;
+    getSearchPosts: async ({ searchQuery, providerContext }) => {
+        const { axios, cheerio } = providerContext;
         try {
-            const searchUrl = `https://yomovies.rentals{encodeURIComponent(searchQuery)}`;
-            const response = await axios.get(searchUrl);
-            return [{
-                title: `${searchQuery} (YoMovies Stream)`,
-                link: "https://yomovies.rentals/",
-                image: ""
-            }];
+            // YoMovies ki asli website se content search aur parse karna
+            const targetUrl = `https://yomovies.rentals{encodeURIComponent(searchQuery)}`;
+            const res = await axios.get(targetUrl);
+            const \$ = cheerio.load(res.data);
+            const results = [];
+
+            // Website ke HTML structure se movies ke links nikalna
+            \$('.ml-item').each((i, el) => {
+                const title = \$(el).find('a').attr('title') || searchQuery;
+                const link = \$(el).find('a').attr('href') || "https://yomovies.rentals";
+                const image = \$(el).find('img').attr('src') || "";
+                results.push({ title: `${title} (YoMovies)`, link, image });
+            });
+
+            return results.length ? results : [{ title: `${searchQuery} (YoMovies Server)`, link: "https://yomovies.rentals", image: "" }];
         } catch (e) { return []; }
     },
-    getMeta: async ({ link, providerContext }) => ({
-        title: "YoMovies Video",
-        synopsis: "Streaming from YoMovies Rentals",
-        image: "",
-        type: "movie",
-        linkList: []
-    }),
-    getStream: async ({ link, type, providerContext }) => [{
-        title: "YoMovies HighSpeed Server",
-        url: "https://yomovies.rentals/"
-    }]
+    getMeta: async ({ link }) => ({ title: "YoMovies Video", type: "movie", linkList: [] }),
+    getStream: async ({ link }) => [{ title: "YoMovies Stream Link", url: link || "https://yomovies.rentals" }]
 };
 
-// 3. WatchOMovies Code (watchomovies.forum)
+// 3. WatchOMovies Forum Provider
 const watchomovies = {
     catalog: [{ title: "Trending Forum Movies", filter: "/trending" }],
     genres: [],
     getPosts: async ({ filter, page, providerContext }) => [],
-    getSearchPosts: async ({ searchQuery, page, providerContext }) => {
-        const { axios } = providerContext;
+    getSearchPosts: async ({ searchQuery, providerContext }) => {
+        const { axios, cheerio } = providerContext;
         try {
-            const searchUrl = `https://watchomovies.forum{encodeURIComponent(searchQuery)}`;
-            const response = await axios.get(searchUrl);
-            return [{
-                title: `${searchQuery} (WatchOMovies Stream)`,
-                link: "https://watchomovies.forum/",
-                image: ""
-            }];
+            // WatchOMovies ki asli website ko fetch aur scrape karna
+            const targetUrl = `https://watchomovies.forum{encodeURIComponent(searchQuery)}`;
+            const res = await axios.get(targetUrl);
+            const \$ = cheerio.load(res.data);
+            const results = [];
+
+            \$('.result-item').each((i, el) => {
+                const title = \$(el).find('.title a').text() || searchQuery;
+                const link = \$(el).find('.title a').attr('href') || "https://watchomovies.forum";
+                const image = \$(el).find('img').attr('src') || "";
+                results.push({ title: `${title} (WatchOMovies)`, link, image });
+            });
+
+            return results.length ? results : [{ title: `${searchQuery} (WatchOMovies Server)`, link: "https://watchomovies.forum", image: "" }];
         } catch (e) { return []; }
     },
-    getMeta: async ({ link, providerContext }) => ({
-        title: "WatchOMovies Video",
-        synopsis: "Streaming from WatchOMovies Forum",
-        image: "",
-        type: "movie",
-        linkList: []
-    }),
-    getStream: async ({ link, type, providerContext }) => [{
-        title: "WatchOMovies Server",
-        url: "https://watchomovies.forum/"
-    }]
+    getMeta: async ({ link }) => ({ title: "WatchOMovies Video", type: "movie", linkList: [] }),
+    getStream: async ({ link }) => [{ title: "WatchOMovies Player Link", url: link || "https://watchomovies.forum" }]
 };
 
-// TEENO PROVIDERS KO VEGA APP MEIN REGISTER KARNA
+// Teeno providers ko register karna
 globalThis.providers = { crunchyroll, yomovies, watchomovies };

@@ -1,11 +1,10 @@
 [
   {
-    "display_name": "EXAMPLE",
-    "value": "example",
+    "display_name": "Crunchyroll Anime",
+    "value": "crunchyroll",
     "version": "1.0",
     "icon": "",
     "type": "global",
-    "hasSettings": true,
     "disabled": false
   }
 ]

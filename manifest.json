@@ -1,16 +1,16 @@
 [
   {
     "display_name": "Crunchyroll Anime",
-    "value": "crunchyroll",
-    "version": "1.0",
+    "value": "https://www.crunchyroll.com/?srsltid=AU7gw4XB5hFaZbf6vIsDB8Hc1VAYacWyw4H39TCFcorPjYq8BIkfoASk",
+    "version": "2.0",
     "icon": "",
     "type": "global",
     "disabled": false
   },
   {
     "display_name": "YoMovies Rentals",
-    "value": "yomovies",
-    "version": "1.0",
+    "value": "https://yomovies.rentals/",
+    "version": "2.0",
     "icon": "",
     "type": "global",
     "disabled": false
@@ -18,7 +18,7 @@
   {
     "display_name": "WatchOMovies Forum",
     "value": "watchomovies",
-    "version": "1.0",
+    "version": "2.0",
     "icon": "",
     "type": "global",
     "disabled": false
